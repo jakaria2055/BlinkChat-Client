@@ -12,6 +12,15 @@ export const ChatProvider = ({ children }) => {
 
   const { socket, axios } = useContext(AuthContext);
 
+  // Save selectedUser to sessionStorage whenever it changes
+  useEffect(() => {
+    if (selectedUser) {
+      sessionStorage.setItem("selectedUser", JSON.stringify(selectedUser));
+    } else {
+      sessionStorage.removeItem("selectedUser");
+    }
+  }, [selectedUser]);
+
   //GET ALL USER
   const getUsers = async () => {
     try {
@@ -31,7 +40,7 @@ export const ChatProvider = ({ children }) => {
     try {
       const { data } = await axios.get(`/api/messages/${userId}`);
       if (data.success) {
-        setMessages(data.message);
+        setMessages(data.messages || []);
       }
     } catch (error) {
       toast.error(error.message);
@@ -46,7 +55,7 @@ export const ChatProvider = ({ children }) => {
         messageData
       );
       if (data.success) {
-        setMessages((prevMessages) => [...prevMessages, data.newMessages]);
+        setMessages((prevMessages) => [...prevMessages, data.newMessage]);
       } else {
         toast.error(data.message);
       }
